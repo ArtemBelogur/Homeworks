@@ -1,0 +1,53 @@
+import java.util.Scanner;
+public class Homework {
+    public static void print(String[] ourWord){
+        System.out.print("**");
+        for(int i = 0; i < ourWord.length; i++)
+            System.out.print(ourWord[i]);
+        System.out.print("** ");
+    }
+    public static boolean areEquals(String[] ourWord, String[] ourWordIfWin){
+        for(int j = 0; j < ourWord.length; j++)
+            if(!ourWord[j].equals(ourWordIfWin[j])) {
+               return false;
+            }
+        return true;
+    }
+    public static void main(String[] args){
+        byte counter = 0;
+        Scanner s = new Scanner(System.in);
+        String[] ourWord = {"_ ", "_ ", "_ ", "_ ", "_ ", "_ "};
+        String[] ourWordIfWin = {"С", "о", "б", "а", "к", "а"};
+        System.out.println("Игра Поле чудес");
+        System.out.println("Вам нужно угадать слово которое я загадал, у вас будет 12 попыток угадать букву. Это домашнее животное, которое было приручено самым первым.");
+        System.out.println("Вот слово: ");
+        print(ourWord);
+        boolean check = true;
+        while(counter < 13 && check){
+            counter++;
+            System.out.println("Введите букву(маленькую):");
+            String letter = s.nextLine();
+            switch(letter){
+                case "с": ourWord[0] = "С";
+                    break;
+                case "о": ourWord[1] = "о";
+                    break;
+                case "б": ourWord[2] = "б";
+                    break;
+                case "а": ourWord[3] = "а";
+                    ourWord[5] = "а";
+                    break;
+                case "к": ourWord[4] = "к";
+                    break;
+                default : System.out.println("Неверная буква.");
+                    break;
+            }
+            print(ourWord);
+            if(areEquals(ourWordIfWin, ourWord)){
+                System.out.println("Вы победили!");
+                check = false;
+            }
+            System.out.println(" Осталось " + (13 - counter) + " попыток");
+        }
+    }
+}
