@@ -44,85 +44,89 @@ public:
         }
 
         if (num < 0) {
-            invert(binNum);
-            addAdditionalOne(binNum);
+            Number ad = Number(1);
+
+            substraction(ad);
+            invert();
         }
     }
 
-    void addAdditionalOne(bool* binNum1) {
-        bool* additionalOne = new bool[length];
-        additionalOne[length - 1] = 1;
-        for (int i = 0; i < length - 1; i++)
-            additionalOne[i] = 0;
-        sum(binNum1, additionalOne, false);
-    }
-
-    void invert(bool* binNum1)
+    void invert()
     {
         for (int i = length - 1; i >= 0; i--) {
-            if (binNum1[i])
-                binNum1[i] = 0;
+            if (binNum[i])
+                binNum[i] = 0;
             else
-                binNum1[i] = 1;
+                binNum[i] = 1;
         }
     }
 
-    void sum(bool* binNum1, bool* binNum2, bool mult)
+    void sum(Number num)
     {
         bool additional = false;
 
+        bool neg = false;
+        bool pos = false;
+
+        if (binNum[0] && num.binNum[0])
+            neg = true;
+
+        if (!binNum[0] && !num.binNum[0])
+            pos = true;
+
         for (int i = length; i >= 0; i--) {
-            if (binNum1[i] == 1 && binNum2[i] == 1) {
-                binNum1[i] = additional;
+            if (binNum[i] == 1 && num.binNum[i] == 1) {
+                binNum[i] = additional;
                 additional = 1;
             }
-            else if ((binNum1[i] == 0 && binNum2[i] == 1) || (binNum1[i] == 1 && binNum2[i] == 0)) {
+            else if ((binNum[i] == 0 && num.binNum[i] == 1) || (binNum[i] == 1 && num.binNum[i] == 0)) {
                 if (additional)
-                    binNum1[i] = 0;
+                    binNum[i] = 0;
                 else
-                    binNum1[i] = 1;
+                    binNum[i] = 1;
             }
             else {
-                binNum1[i] = additional;
+                binNum[i] = additional;
                 additional = 0;
             }
         }
+
+        if ((binNum[0] && pos) || (!binNum[0] && neg))
+            throw 1;
     }
 
     void substraction(Number num)
     {
-        invert(num.binNum);
-        addAdditionalOne(num.binNum);
-        sum(binNum, num.binNum, false);
+        Number ad = Number(1);
+
+        num.invert();
+        num.sum(ad);
+        sum(num);
     }
 
     void multiplication(Number num)
     {
-        bool* tmp1 = new bool[length];
-        bool* tmp2 = new bool[length];
-        bool incorrect = false;
-
-        for (int i = 0; i < length; i++) {
-            tmp1[i] = binNum[i];
-            tmp2[i] = num.binNum[i];
-            binNum[i] = 0;
+        if (this->num < 0 && num.num < 0) {
+            Number ad = Number(1);
+            substraction(ad);
+            invert();
+            num.num = -(num.num);
+            for (int i = 0; i < length; i++)
+                num.binNum[i] = binNum[i];
         }
-
-        for (int i = length - 1, counter = 1; i >= 0; i--, counter++) {
-            if (tmp2[i]) {
-                for (int a = 0; a < length; a++) 
-                    num.binNum[a] = 0;
-
-                for (int j = length - 1, k = length - counter; k >= 0; j--, k--) 
-                    num.binNum[k] = tmp1[j];
-
-                for (int i = length - 1; i > counter; i--)
-                    if (tmp1[i])
-                        incorrect = true;
-
-                sum(binNum, num.binNum, true);
-            }
+        else if (num.num < 0 && this->num > 0) {
+            for (int i = 0; i < length; i++) 
+                binNum[i] = num.binNum[i];
+            int temp = num.num;
+            num.num = this->num;
+            this->num = temp;
         }
+        else
+            for (int i = 0; i < length; i++)
+                num.binNum[i] = binNum[i];
+        
+        for (int i = 0; i < num.num - 1; i++) 
+            sum(num);
     }
 
     void outputBinNum()
@@ -135,10 +139,10 @@ public:
     {
         int num = 0;
         bool neg = false;
-
+        Number ad = Number(1);
         if (binNum[0]) {
-            invert(binNum);
-            addAdditionalOne(binNum);
+            substraction(ad);
+            invert();
             neg = true;
         }
 
@@ -201,70 +205,33 @@ int main()
         return 0;
     }
 
-    bool neg = false;
-    bool pos = false;
-
-    if (firstNumber.binNum[0] && secondNumber.binNum[0])
-        neg = true;
-    else if (!firstNumber.binNum[0] && !secondNumber.binNum[0])
-        pos = true;
-
-
     try {
         if (operation == 1) {
-            firstNumber.sum(firstNumber.binNum, secondNumber.binNum, false);
+            firstNumber.sum(secondNumber);
             cout << "Summary in a binary representation: ";
             firstNumber.outputBinNum();
-
-            if (firstNumber.binNum[0] && pos) 
-                throw 1;
-
             cout << endl << endl << "Summary in a decimal: ";
+            firstNumber.outputDecimalNum();
+        }
+        else if (operation == 2) {
+            firstNumber.multiplication(secondNumber);
+            cout << "Multyplication in a binary representation: ";
+            firstNumber.outputBinNum();
+            cout << endl << endl << "Multiplication in a decimal: ";
             firstNumber.outputDecimalNum();
         }
         else if (operation == 3) {
             firstNumber.substraction(secondNumber);
             cout << "Substraction in a binary representation: ";
             firstNumber.outputBinNum();
-
-            if (firstNumber.binNum[0] && pos)
-                throw 1;
-
             cout << endl << endl << "Substraction in a decimal: ";
             firstNumber.outputDecimalNum();
         }
-
-        if (firstNumber.binNum[0] && pos) 
-            throw 1;
     }
     catch(int e){
         if(e == 1)
             cout << endl << "Overflow! Output is incorrect\n";
     }
 
-    /*switch (operation) {
-    case 1:
-        firstNumber.sum(firstNumber.binNum, secondNumber.binNum, false);
-        cout << "Summary in a binary representation: ";
-        firstNumber.outputBinNum();
-        cout << endl << endl << "Summary in a decimal: ";
-        firstNumber.outputDecimalNum();
-        break;
-    case 2:
-        firstNumber.multiplication(secondNumber);
-        cout << "Multyplication in a binary representation: ";
-        firstNumber.outputBinNum();
-        cout << endl << endl << "Multiplication in a decimal: ";
-        firstNumber.outputDecimalNum();
-        break;
-    case 3:
-        firstNumber.substraction(secondNumber);
-        cout << "Substraction in a binary representation: ";
-        firstNumber.outputBinNum();
-        cout << endl << endl << "Substraction in a decimal: ";
-        firstNumber.outputDecimalNum();
-        break;
-    }
-    */
     return 0;
 }
